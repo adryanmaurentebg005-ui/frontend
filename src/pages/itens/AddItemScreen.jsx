@@ -19,7 +19,7 @@ const AddItemScreen = () => {
   const [loadError, setLoadError] = useState('');
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('loggedUser') || localStorage.getItem('user');
+    const storedUser = localStorage.getItem('loggedUser');
     if (!storedUser) {
       setLoadError('Não foi possível identificar o usuário logado. Faça login novamente.');
       setIsLoading(false);

@@ -17,8 +17,9 @@ function LoginScreen() {
         setIsLoading(true);
         try {
             const response = await api.post("/login", form);
+            localStorage.removeItem("user");
             localStorage.setItem("loggedUser", JSON.stringify(response.data.user));
-            localStorage.setItem("user", JSON.stringify(response.data.user));
+            window.dispatchEvent(new Event("auth-changed"));
             navigate("/itens");
         } catch (error) {
             const message = error.response?.data?.message || "Erro ao fazer login.";
@@ -60,7 +61,7 @@ function LoginScreen() {
                         {isLoading ? "Carregando..." : "Entrar"}
                     </button>
                     <div className="text-center mt-2">
-                        <Link to="/" className="text-sm text-white underline">
+                        <Link to="/register" className="text-sm text-white underline">
                             nao tem conta? registre-se
                         </Link>
                     </div>

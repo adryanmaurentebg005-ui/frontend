@@ -9,7 +9,7 @@ const OrderScreen = () => {
   const [loggedUser, setLoggedUser] = useState(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('loggedUser') || localStorage.getItem('user');
+    const storedUser = localStorage.getItem('loggedUser');
     if (storedUser) {
       try {
         setLoggedUser(JSON.parse(storedUser));
@@ -44,8 +44,8 @@ const OrderScreen = () => {
   }, [users]);
 
   const canDeleteOrder = (order) => {
-    const orderPurchaserId = order?.purchaser?._id || order?.purchaser;
-    return Boolean(loggedUser?._id && orderPurchaserId === loggedUser._id);
+    const orderAuthorId = order?.author?._id || order?.author || order?.purchaser?._id || order?.purchaser;
+    return Boolean(loggedUser?._id && orderAuthorId === loggedUser._id);
   };
 
   const handleDeleteOrder = async (orderId) => {
@@ -87,25 +87,43 @@ const OrderScreen = () => {
         {orders.map((order) => {
           const fallbackUser = usersById[order?.purchaser] || null;
           const buyer = order?.purchaser?._id ? order.purchaser : fallbackUser;
+          const fallbackAuthor = usersById[order?.author] || null;
+          const author = order?.author?._id ? order.author : fallbackAuthor;
           return (
             <div key={order._id} className="rounded border border-white bg-[#EE4D2D] p-4 text-white">
               <h2 className="text-lg font-semibold">{order.orderName}</h2>
+              <p className="mt-2 text-sm">Autor: {author?.name || 'Usuário não encontrado'}</p>
+              <p className="text-sm">Email autor: {author?.email || '-'}</p>
               <p className="mt-2 text-sm">
                 Comprador: {buyer?.name || 'Usuário não encontrado'}
               </p>
               <p className="text-sm">E-mail: {buyer?.email || '-'}</p>
               <p className="mt-2 text-sm">Status: {order.status || 'Pending'}</p>
-              <p className="text-sm">Total: R$ {Number(order.totalPrice || 0).toFixed(2)}</p>
+              <p className="text-sm">Subtotal: R$ {Number(order.totalPrice || 0).toFixed(2)}</p>
+              <p className="text-sm">Desconto: R$ {Number(order.discountAmount || 0).toFixed(2)}</p>
+              <p className="text-sm">Total final: R$ {Number(order.finalPrice || order.totalPrice || 0).toFixed(2)}</p>
+              <p className="text-sm">Cupom: {order.coupon?.code || '-'}</p>
               <p className="text-sm">Itens: {Array.isArray(order.items) ? order.items.length : 0}</p>
 
-              {canDeleteOrder(order) ? (
-                <button
-                  onClick={() => handleDeleteOrder(order._id)}
-                  className="mt-4 w-full rounded border border-white bg-white px-4 py-2 text-sm font-medium text-[#EE4D2D]"
-                >
-                  Apagar pedido
-                </button>
-              ) : null}
+              <div className="mt-4 flex gap-2">
+                {canDeleteOrder(order) ? (
+                  <button
+                    onClick={() => navigate(`/orders/editar/${order._id}`)}
+                    className="w-full rounded border border-white bg-white px-4 py-2 text-sm font-medium text-[#EE4D2D]"
+                  >
+                    Editar
+                  </button>
+                ) : null}
+
+                {canDeleteOrder(order) ? (
+                  <button
+                    onClick={() => handleDeleteOrder(order._id)}
+                    className="w-full rounded border border-white px-4 py-2 text-sm font-medium text-white"
+                  >
+                    Apagar
+                  </button>
+                ) : null}
+              </div>
             </div>
           );
         })}

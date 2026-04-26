@@ -48,13 +48,17 @@ const ProfileScreen = () => {
     setIsSaving(true);
 
     try {
-      await api.put(`/users/${userId}`, form);
+      await api.put(`/users/${userId}`, {
+        ...form,
+        userId,
+      });
 
       const storedUser = localStorage.getItem("loggedUser");
       if (storedUser) {
         const parsedUser = JSON.parse(storedUser);
         const updatedUser = { ...parsedUser, name: form.name, email: form.email };
         localStorage.setItem("loggedUser", JSON.stringify(updatedUser));
+        window.dispatchEvent(new Event("auth-changed"));
       }
       alert("Perfil atualizado com sucesso");
     } catch {
@@ -123,6 +127,8 @@ const ProfileScreen = () => {
             type="button"
             onClick={() => {
               localStorage.removeItem("loggedUser");
+              localStorage.removeItem("user");
+              window.dispatchEvent(new Event("auth-changed"));
               navigate("/login");
             }}
             className="w-full rounded border border-white px-4 py-2 font-semibold text-white"

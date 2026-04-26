@@ -8,7 +8,7 @@ const ItensScreen = () => {
   const [loggedUser, setLoggedUser] = useState(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('loggedUser') || localStorage.getItem('user');
+    const storedUser = localStorage.getItem('loggedUser');
     if (storedUser) {
       try {
         setLoggedUser(JSON.parse(storedUser));
@@ -85,14 +85,25 @@ const ItensScreen = () => {
               <p className="text-sm text-white">Estoque: {item.stock}</p>
               <p className="text-sm text-white">Autor: {item.user?.name || 'Usuário'}</p>
 
-              {canDeleteItem(item) ? (
-                <button
-                  onClick={() => handleDeleteItem(item._id)}
-                  className="mt-4 w-full rounded border border-white bg-white px-4 py-2 text-sm font-medium text-[#EE4D2D]"
-                >
-                  Apagar item
-                </button>
-              ) : null}
+              <div className="mt-4 flex gap-2">
+                {canDeleteItem(item) ? (
+                  <button
+                    onClick={() => navigate(`/itens/editar/${item._id}`)}
+                    className="w-full rounded border border-white bg-white px-4 py-2 text-sm font-medium text-[#EE4D2D]"
+                  >
+                    Editar
+                  </button>
+                ) : null}
+
+                {canDeleteItem(item) ? (
+                  <button
+                    onClick={() => handleDeleteItem(item._id)}
+                    className="w-full rounded border border-white px-4 py-2 text-sm font-medium text-white"
+                  >
+                    Apagar
+                  </button>
+                ) : null}
+              </div>
             </div>
           </div>
         ))}

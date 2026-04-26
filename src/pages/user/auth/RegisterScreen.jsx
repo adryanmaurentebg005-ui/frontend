@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../../../services/api";
 
 
 function RegisterScreen() {
+    const navigate = useNavigate();
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -23,6 +25,7 @@ function RegisterScreen() {
       setEmail("");
       setPassword("");
       alert("Usuário criado com sucesso! ;)");
+        navigate("/login");
 
     } catch (error) {
             const message = error.response?.data?.message || error.message;
@@ -69,9 +72,9 @@ function RegisterScreen() {
                         Registrar
                     </button>
                     <div className="text-center mt-2">
-                        <a href="/login" className="text-sm text-white underline">
+                        <Link to="/login" className="text-sm text-white underline">
                             ja tem conta?
-                        </a>
+                        </Link>
                     </div>
                 </form>
             </div>

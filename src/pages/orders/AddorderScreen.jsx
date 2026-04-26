@@ -7,20 +7,23 @@ const initialForm = {
   purchaser: '',
   product: '',
   quantity: '1',
+  couponCode: '',
 };
 
 const AddorderScreen = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState(initialForm);
+  const [authorId, setAuthorId] = useState('');
   const [users, setUsers] = useState([]);
   const [items, setItems] = useState([]);
+  const [coupons, setCoupons] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadError, setLoadError] = useState('');
 
   useEffect(() => {
     let loggedUserId = '';
-    const storedUser = localStorage.getItem('loggedUser') || localStorage.getItem('user');
+    const storedUser = localStorage.getItem('loggedUser');
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
@@ -31,24 +34,30 @@ const AddorderScreen = () => {
     }
 
     if (loggedUserId) {
+      setAuthorId(loggedUserId);
       setForm((current) => ({ ...current, purchaser: loggedUserId }));
+    } else {
+      setLoadError('Faça login para criar pedidos.');
     }
 
     const loadData = async () => {
       try {
-        const [usersResponse, itemsResponse] = await Promise.all([
+        const [usersResponse, itemsResponse, couponsResponse] = await Promise.all([
           api.get('/users'),
           api.get('/items'),
+          api.get('/coupons'),
         ]);
 
         setUsers(Array.isArray(usersResponse.data) ? usersResponse.data : []);
         setItems(Array.isArray(itemsResponse.data) ? itemsResponse.data : []);
+        setCoupons(Array.isArray(couponsResponse.data) ? couponsResponse.data : []);
         setLoadError('');
       } catch (error) {
         console.error('Erro ao carregar dados do pedido:', error?.response?.data || error?.message || error);
         setUsers([]);
         setItems([]);
-        setLoadError('Não foi possível carregar usuários e itens. Verifique se o backend está ativo.');
+        setCoupons([]);
+        setLoadError('Não foi possível carregar dados. Verifique se o backend está ativo.');
       } finally {
         setIsLoading(false);
       }
@@ -61,8 +70,19 @@ const AddorderScreen = () => {
     return items.find((item) => item._id === form.product) || null;
   }, [form.product, items]);
 
+  const selectedCoupon = useMemo(() => {
+    const code = String(form.couponCode || '').trim().toUpperCase();
+    return coupons.find((coupon) => coupon.code === code) || null;
+  }, [coupons, form.couponCode]);
+
   const quantity = Number(form.quantity) || 1;
   const totalPrice = selectedItem ? Number(selectedItem.price) * quantity : 0;
+  const discountAmount = selectedCoupon
+    ? selectedCoupon.discountType === 'percent'
+      ? (totalPrice * Number(selectedCoupon.discountValue || 0)) / 100
+      : Number(selectedCoupon.discountValue || 0)
+    : 0;
+  const finalPrice = Math.max(0, totalPrice - discountAmount);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -109,8 +129,10 @@ const AddorderScreen = () => {
 
     try {
       await api.post('/orders', {
+        userId: authorId,
         orderName: form.orderName,
         purchaser: form.purchaser,
+        couponCode: form.couponCode,
         items: [
           {
             product: form.product,
@@ -243,9 +265,22 @@ const AddorderScreen = () => {
             ) : null}
           </div>
 
+          <label className="block">
+            <span className="mb-1 block text-sm font-medium text-white">Cupom (opcional)</span>
+            <input
+              name="couponCode"
+              value={form.couponCode}
+              onChange={handleChange}
+              className="w-full rounded border border-white px-3 py-2 text-[#EE4D2D]"
+              placeholder="Ex: FRETE10"
+            />
+          </label>
+
           <div className="rounded border border-white bg-white/10 p-4">
             <p className="text-sm text-white/85">Quantidade: {quantity}</p>
-            <p className="mt-2 font-medium">Total estimado: R$ {totalPrice.toFixed(2)}</p>
+            <p className="mt-1 text-sm text-white/85">Subtotal: R$ {totalPrice.toFixed(2)}</p>
+            <p className="mt-1 text-sm text-white/85">Desconto estimado: R$ {discountAmount.toFixed(2)}</p>
+            <p className="mt-2 font-medium">Total estimado: R$ {finalPrice.toFixed(2)}</p>
           </div>
 
           <button
