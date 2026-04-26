@@ -13,7 +13,7 @@ const NavBar = ({ loggedUser }) => {
     };
 
     return (
-        <nav className="border-b border-white bg-[#EE4D2D]">
+        <nav className="sticky top-0 z-40 shrink-0 border-b border-white bg-[#EE4D2D]">
             <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
                 <Link to={isLoggedIn ? '/itens' : '/login'} className="text-lg font-bold text-white">
                     Chopee™

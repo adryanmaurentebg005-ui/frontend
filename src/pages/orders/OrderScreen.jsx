@@ -64,8 +64,8 @@ const OrderScreen = () => {
   };
 
   return (
-    <div className="mx-auto h-full max-w-6xl px-4 py-6">
-      <div className="mb-6 flex items-center justify-between rounded border border-white bg-[#EE4D2D] p-4">
+    <div className="mx-auto flex h-full min-h-0 max-w-6xl flex-col px-4 py-6">
+      <div className="mb-6 shrink-0 flex items-center justify-between rounded border border-white bg-[#EE4D2D] p-4">
         <h1 className="text-2xl font-bold text-white"> Feed de pedidos</h1>
         <div className="flex gap-2">
           <button
@@ -83,57 +83,59 @@ const OrderScreen = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {orders.map((order) => {
-          const fallbackUser = usersById[order?.purchaser] || null;
-          const buyer = order?.purchaser?._id ? order.purchaser : fallbackUser;
-          const fallbackAuthor = usersById[order?.author] || null;
-          const author = order?.author?._id ? order.author : fallbackAuthor;
-          return (
-            <div key={order._id} className="rounded border border-white bg-[#EE4D2D] p-4 text-white">
-              <h2 className="text-lg font-semibold">{order.orderName}</h2>
-              <p className="mt-2 text-sm">Autor: {author?.name || 'Usuário não encontrado'}</p>
-              <p className="text-sm">Email autor: {author?.email || '-'}</p>
-              <p className="mt-2 text-sm">
-                Comprador: {buyer?.name || 'Usuário não encontrado'}
-              </p>
-              <p className="text-sm">E-mail: {buyer?.email || '-'}</p>
-              <p className="mt-2 text-sm">Status: {order.status || 'Pending'}</p>
-              <p className="text-sm">Subtotal: R$ {Number(order.totalPrice || 0).toFixed(2)}</p>
-              <p className="text-sm">Desconto: R$ {Number(order.discountAmount || 0).toFixed(2)}</p>
-              <p className="text-sm">Total final: R$ {Number(order.finalPrice || order.totalPrice || 0).toFixed(2)}</p>
-              <p className="text-sm">Cupom: {order.coupon?.code || '-'}</p>
-              <p className="text-sm">Itens: {Array.isArray(order.items) ? order.items.length : 0}</p>
+      <div className="hide-scrollbar min-h-0 flex-1 overflow-y-auto pr-1">
+        <div className="grid grid-cols-1 gap-4 pb-2 sm:grid-cols-2 lg:grid-cols-3">
+          {orders.map((order) => {
+            const fallbackUser = usersById[order?.purchaser] || null;
+            const buyer = order?.purchaser?._id ? order.purchaser : fallbackUser;
+            const fallbackAuthor = usersById[order?.author] || null;
+            const author = order?.author?._id ? order.author : fallbackAuthor;
+            return (
+              <div key={order._id} className="rounded border border-white bg-[#EE4D2D] p-4 text-white">
+                <h2 className="text-lg font-semibold">{order.orderName}</h2>
+                <p className="mt-2 text-sm">Autor: {author?.name || 'Usuário não encontrado'}</p>
+                <p className="text-sm">Email autor: {author?.email || '-'}</p>
+                <p className="mt-2 text-sm">
+                  Comprador: {buyer?.name || 'Usuário não encontrado'}
+                </p>
+                <p className="text-sm">E-mail: {buyer?.email || '-'}</p>
+                <p className="mt-2 text-sm">Status: {order.status || 'Pending'}</p>
+                <p className="text-sm">Subtotal: R$ {Number(order.totalPrice || 0).toFixed(2)}</p>
+                <p className="text-sm">Desconto: R$ {Number(order.discountAmount || 0).toFixed(2)}</p>
+                <p className="text-sm">Total final: R$ {Number(order.finalPrice || order.totalPrice || 0).toFixed(2)}</p>
+                <p className="text-sm">Cupom: {order.coupon?.code || '-'}</p>
+                <p className="text-sm">Itens: {Array.isArray(order.items) ? order.items.length : 0}</p>
 
-              <div className="mt-4 flex gap-2">
-                {canDeleteOrder(order) ? (
-                  <button
-                    onClick={() => navigate(`/orders/editar/${order._id}`)}
-                    className="w-full rounded border border-white bg-white px-4 py-2 text-sm font-medium text-[#EE4D2D]"
-                  >
-                    Editar
-                  </button>
-                ) : null}
+                <div className="mt-4 flex gap-2">
+                  {canDeleteOrder(order) ? (
+                    <button
+                      onClick={() => navigate(`/orders/editar/${order._id}`)}
+                      className="w-full rounded border border-white bg-white px-4 py-2 text-sm font-medium text-[#EE4D2D]"
+                    >
+                      Editar
+                    </button>
+                  ) : null}
 
-                {canDeleteOrder(order) ? (
-                  <button
-                    onClick={() => handleDeleteOrder(order._id)}
-                    className="w-full rounded border border-white px-4 py-2 text-sm font-medium text-white"
-                  >
-                    Apagar
-                  </button>
-                ) : null}
+                  {canDeleteOrder(order) ? (
+                    <button
+                      onClick={() => handleDeleteOrder(order._id)}
+                      className="w-full rounded border border-white px-4 py-2 text-sm font-medium text-white"
+                    >
+                      Apagar
+                    </button>
+                  ) : null}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {orders.length === 0 ? (
-        <div className="mt-6 rounded border border-white bg-[#EE4D2D] p-8 text-center text-white">
-          Nenhum pedido disponível
+            );
+          })}
         </div>
-      ) : null}
+
+        {orders.length === 0 ? (
+          <div className="mt-6 rounded border border-white bg-[#EE4D2D] p-8 text-center text-white">
+            Nenhum pedido disponível
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 };

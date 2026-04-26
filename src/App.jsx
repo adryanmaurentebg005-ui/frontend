@@ -58,7 +58,7 @@ export default function App() {
     <BrowserRouter>
       <div className="flex h-screen flex-col overflow-hidden">
         <NavBar loggedUser={loggedUser} />
-        <main className="min-h-0 flex-1 overflow-auto bg-gray-50">
+        <main className="hide-scrollbar min-h-0 flex-1 overflow-auto bg-gray-50">
           <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<PublicOnlyRoute element={<LoginScreen />} />} />
